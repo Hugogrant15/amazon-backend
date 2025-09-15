@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
 
 })
 
-router.post('/', [auth, distributor], async (req, res) => {
+router.post('/', [auth, superadmin], async (req, res) => {
     const {error} = validate(req.body);
     if (error)  return res.status(400).send(error.details[0].message)
     
@@ -32,7 +32,7 @@ router.post('/', [auth, distributor], async (req, res) => {
 
 
 
-router.put('/:id', [auth, distributor], async (req, res) => {
+router.put('/:id', [auth, superadmin], async (req, res) => {
     const {error} = validate(req.body);
     if (error)  return res.status(400).send(error.details[0].message)
 
@@ -49,7 +49,7 @@ router.put('/:id', [auth, distributor], async (req, res) => {
     res.send(product)
 })
 
-router.delete('/:id', [auth, distributor], async (req, res) => {
+router.delete('/:id', [auth, superadmin], async (req, res) => {
     const product = await Product.findByIdAndDelete(req.params.id)
 
     if(!product) return res.status(400).send('The product with the given id not Found');

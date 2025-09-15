@@ -71,7 +71,7 @@ const Customer = mongoose.model('Customer', customerSchema);
 
 function validateCustomer(customer) {
     const schema = {
-        profilePicture: Joi.string().uri().allow("", null).required(),
+        // profilePicture: Joi.string().uri().allow("", null).required(),
         firstName: Joi.string().trim().min(5).max(50).required(),
         lastName:Joi.string().trim().min(5).max(50).required(),
         email: Joi.string().email().lowercase().min(5).max(50).required(),

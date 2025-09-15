@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
     if (error)  return res.status(400).send(error.details[0].message)
     
     let customer = new Customer({
-        profilePicture:req.body.profilePicture,
+        // profilePicture:req.body.profilePicture,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email:req.body.email,
@@ -37,7 +37,7 @@ router.put('/:id', async (req, res) => {
     if (error)  return res.status(400).send(error.details[0].message)
 
     const customer = await Customer.findByIdAndUpdate(req.params.id, {
-        profilePicture:req.body.profilePicture,
+        // profilePicture:req.body.profilePicture,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email:req.body.email,
