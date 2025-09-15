@@ -79,7 +79,8 @@ router.post("/", async (req, res) => {
         email: customer.email,
         phone: customer.phone,
         state: customer.state,
-        city: customer.city
+        city: customer.city,
+        address: customer.address
     };
     let cartItems = [];
     for (let p of items) {

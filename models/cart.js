@@ -31,7 +31,8 @@ const cartSchema = new mongoose.Schema({
         email: String,
         phone: String,
         state: String,
-        city: String
+        city: String,
+        address: String
     },
     items: [
         cartItemSchema
@@ -69,6 +70,7 @@ function validateCart(cart) {
             phone: Joi.string().min(5).max(11).required(),
             state: Joi.string().required(),
             city: Joi.string().required(),
+            address: Joi.string().required()
         }),
         items: Joi.array().items(
             Joi.object().keys({

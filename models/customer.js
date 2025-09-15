@@ -59,6 +59,10 @@ const customerSchema = new mongoose.Schema({
     city: {
         type: String,
         required: true,
+    },
+    address: {
+        type: String,
+        required: true,
     }
 
 })
@@ -76,7 +80,8 @@ function validateCustomer(customer) {
         gender: Joi.string().valid("Male", "Female", "Other").default("Other"),
         country: Joi.string().required(),
         state: Joi.string().required(),
-        city: Joi.string().required()
+        city: Joi.string().required(),
+        address: Joi.string().required()
     }
     return Joi.validate(customer, schema)
 }

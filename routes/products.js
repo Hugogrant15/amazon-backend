@@ -32,7 +32,7 @@ router.post('/', [auth, distributor], async (req, res) => {
 
 
 
-router.put('/:id', [auth, distributor, superadmin], async (req, res) => {
+router.put('/:id', [auth, distributor], async (req, res) => {
     const {error} = validate(req.body);
     if (error)  return res.status(400).send(error.details[0].message)
 
