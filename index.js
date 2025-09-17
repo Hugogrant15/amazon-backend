@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
 const express = require('express')
 const app = express()
-const product = require('./routes/products')
-const customer = require('./routes/customers')
+const product = require('./routes/products');
+const customer = require('./routes/customers');
+const feature = require('./routes/features');
 const cart = require('./routes/carts')
 const user = require('./routes/users')
 const auth = require('./routes/auth')
@@ -30,6 +31,7 @@ app.use(cors());
 
 app.use('/amazon/document/api/products', product)
 app.use('/amazon/document/api/customers', customer)
+app.use('/amazon/document/api/features', feature)
 app.use('/amazon/document/api/register', user)
 app.use('/amazon/document/api/login', auth)
 app.use('/amazon/document/api/carts', cart)
