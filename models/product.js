@@ -33,7 +33,7 @@ const productSchema = new mongoose.Schema({
 
     numberInStock:{
         type: Number,
-        min: 0,
+        min: 1,
         max: 1000,
         required: true
     },
@@ -50,7 +50,7 @@ function validateProduct(product) {
         price: Joi.string().required(),
         description: Joi.string().min(10).max(500).required(),
         rating: Joi.string(),
-        numberInStock: Joi.number().min(0).max(1000).required()
+        numberInStock: Joi.number().min(1).max(1000).required()
     }
     return Joi.validate(product, schema)
 }
