@@ -22,7 +22,13 @@ router.post('/',  async (req, res) => {
         image: req.body.image,
         price: req.body.price,
         description: req.body.description,
-        numberInStock: req.body.numberInStock
+        numberInStock: req.body.numberInStock,
+        benefits: req.body.benefits,
+        variety: req.body.variety,
+        ingredients: req.body.ingredients
+
+
+
     })
 
     product = await product.save()
@@ -37,11 +43,14 @@ router.put('/:id', [auth, superadmin], async (req, res) => {
     if (error)  return res.status(400).send(error.details[0].message)
 
     const product = await Product.findByIdAndUpdate(req.params.id, {
-        name: req.body.name,
+       name: req.body.name,
         image: req.body.image,
         price: req.body.price,
         description: req.body.description,
         numberInStock: req.body.numberInStock,
+        benefits: req.body.benefits,
+        variety: req.body.variety,
+        ingredients: req.body.ingredients
     }, {new: true})
 
     if (!product) return res.status(400).send('The product with the given id not Found');
