@@ -3,21 +3,21 @@ const express = require('express')
 const app = express()
 const product = require('./routes/products');
 const customer = require('./routes/customers');
-const feature = require('./routes/features');
-const cart = require('./routes/carts')
+const cart = require('./routes/carts');
+const order = require('./routes/orders');
+const location = require('./routes/disrtibutorsLocation');
+const category = require('./routes/categories');
 const user = require('./routes/users')
 const auth = require('./routes/auth')
 const config = require('config')
 const cors = require("cors");
+require('dotenv').config();
 
 
 if (!config.get("jwtPrivateKey")) {
 console.error('FATAL ERROR: jwtPrivateKey is not defined.');
 process.exit(1);
 }
-
-
-
 
 
 mongoose.connect('mongodb://localhost/amazondatabase')
@@ -31,10 +31,12 @@ app.use(cors());
 
 app.use('/amazon/document/api/products', product)
 app.use('/amazon/document/api/customers', customer)
-app.use('/amazon/document/api/features', feature)
 app.use('/amazon/document/api/register', user)
 app.use('/amazon/document/api/login', auth)
 app.use('/amazon/document/api/carts', cart)
+app.use('/amazon/document/api/orders', order)
+app.use('/amazon/document/api/categories', category)
+app.use('/amazon/document/api/locations', location)
 
 
 

@@ -1,4 +1,5 @@
-const {Product, validate} = require('../models/product')
+const {Product, validate} = require('../models/product');
+const {Category} = require('../models/category')
 const express = require('express');
 const router = express.Router()
 const auth = require('../middleware/auth');
@@ -11,14 +12,22 @@ router.get('/', async (req, res) => {
 
 })
 
-router.post('/',  async (req, res) => {
+router.post('/', [auth, superadmin],  async (req, res) => {
     const {error} = validate(req.body);
     if (error)  return res.status(400).send(error.details[0].message)
+
+    const category = await Category.findById(req.body.categoryId)
+
+    if (!category) return res.status(404).send('Invalid category id');
     
 
 
     let product = new Product({
         name: req.body.name,
+        category: {
+            _id: category._id,
+            name: category.name,
+        },
         image: req.body.image,
         price: req.body.price,
         description: req.body.description,
@@ -42,8 +51,16 @@ router.put('/:id', [auth, superadmin], async (req, res) => {
     const {error} = validate(req.body);
     if (error)  return res.status(400).send(error.details[0].message)
 
+    const category = await Category.findById(req.body.categoryId)
+
+    if (!category) return res.status(404).send('Invalid category id');
+
     const product = await Product.findByIdAndUpdate(req.params.id, {
        name: req.body.name,
+        category: {
+            _id: category._id,
+            name: category.name,
+        },
         image: req.body.image,
         price: req.body.price,
         description: req.body.description,
