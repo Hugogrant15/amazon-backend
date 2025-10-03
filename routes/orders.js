@@ -216,7 +216,6 @@ router.post('/create', async (req, res) => {
 //   }
 });
 
-
 router.post("/confirm", async (req, res) => {
   try {
     const { reference } = req.body;
@@ -251,6 +250,7 @@ router.post("/confirm", async (req, res) => {
     res.status(500).json({ success: false, message: "Error verifying payment" });
   }
 });
+
 router.post("/webhook", express.json({ type: "application/json" }), async (req, res) => {
   try {
     const event = req.body;
@@ -267,6 +267,11 @@ router.post("/webhook", express.json({ type: "application/json" }), async (req, 
     console.error("Webhook Error:", err.message);
     res.sendStatus(500);
   }
+});
+
+router.get('/', async (req, res) => {
+  const orders = await Order.find().sort('name')
+  res.send(orders)
 });
 
 

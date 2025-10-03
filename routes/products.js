@@ -3,6 +3,7 @@ const {Category} = require('../models/category')
 const express = require('express');
 const router = express.Router()
 const auth = require('../middleware/auth');
+const authorize = require("../middleware/authorize");
 const distributor = require('../middleware/distributor');
 const superadmin = require('../middleware/superadmin');
 
@@ -12,13 +13,13 @@ router.get('/', async (req, res) => {
 
 })
 
-router.post('/', [auth, superadmin],  async (req, res) => {
+router.post('/', [auth, authorize(["super_admin"])],  async (req, res) => {
     const {error} = validate(req.body);
-    if (error)  return res.status(400).send(error.details[0].message)
+    if (error)  return res.status(400).json(error.details[0].message)
 
     const category = await Category.findById(req.body.categoryId)
 
-    if (!category) return res.status(404).send('Invalid category id');
+    if (!category) return res.status(404).json('Invalid category id');
     
 
 
@@ -47,13 +48,13 @@ router.post('/', [auth, superadmin],  async (req, res) => {
 
 
 
-router.put('/:id', [auth, superadmin], async (req, res) => {
+router.put('/:id', [auth, authorize(["super_admin"])], async (req, res) => {
     const {error} = validate(req.body);
-    if (error)  return res.status(400).send(error.details[0].message)
+    if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
     const category = await Category.findById(req.body.categoryId)
 
-    if (!category) return res.status(404).send('Invalid category id');
+   if (!category) return res.status(404).json({ success: false, message: 'Invalid category id' });
 
     const product = await Product.findByIdAndUpdate(req.params.id, {
        name: req.body.name,
@@ -75,7 +76,7 @@ router.put('/:id', [auth, superadmin], async (req, res) => {
     res.send(product)
 })
 
-router.delete('/:id', [auth, superadmin], async (req, res) => {
+router.delete('/:id', [auth, authorize(["super_admin"])], async (req, res) => {
     const product = await Product.findByIdAndDelete(req.params.id)
 
     if(!product) return res.status(400).send('The product with the given id not Found');

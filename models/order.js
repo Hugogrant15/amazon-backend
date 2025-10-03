@@ -148,6 +148,7 @@
 
 const mongoose = require('mongoose');
 const Joi = require('joi');
+const { add } = require('lodash');
 const orderItemSchema = new mongoose.Schema({
     productId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -174,6 +175,8 @@ const orderSchema = new mongoose.Schema({
         lastName: String,
         email: String,
         phone: String,
+        country: String,
+        address: String,
         state: String,
         city: String
     },
@@ -227,6 +230,8 @@ function validateOrder(order) {
             lastName: Joi.string().min(5).max(50).required(),
             email: Joi.string().min(5).max(255).required().email(),
             phone: Joi.string().min(5).max(11).required(),
+            country: Joi.string().required(),
+            address: Joi.string().required(),
             state: Joi.string().required(),
             city: Joi.string().required(),
         }),

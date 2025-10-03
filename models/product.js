@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const mongoose = require('mongoose');
-// const {categorySchema} = require('./category')
+const {categorySchema} = require('./category')
 
 const productSchema = new mongoose.Schema({
     name: {
@@ -10,8 +10,7 @@ const productSchema = new mongoose.Schema({
         maxLenght: 50
     },
     category: {
-    type: mongoose.Schema.Types.ObjectId, //  category id
-    ref: "Category",                      //  reference Category collection
+    type: categorySchema,
     required: true
   },
 
