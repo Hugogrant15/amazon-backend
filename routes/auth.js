@@ -42,7 +42,7 @@ const config = require('config');
     if (!validPassword) return res.status(400).send("Invalid email or password.");
 
     const token = user.generateAuthToken();
-    res.send({ token, role: user.role, name: user.name });
+    res.send({ token, role: user.role, name: user.name, city: user.city });
     });
 
 

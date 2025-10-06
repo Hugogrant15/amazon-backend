@@ -148,7 +148,7 @@
 
 const mongoose = require('mongoose');
 const Joi = require('joi');
-const { add } = require('lodash');
+
 const orderItemSchema = new mongoose.Schema({
     productId: {
     type: mongoose.Schema.Types.ObjectId,

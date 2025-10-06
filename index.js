@@ -5,8 +5,9 @@ const product = require('./routes/products');
 const customer = require('./routes/customers');
 const cart = require('./routes/carts');
 const order = require('./routes/orders');
-const location = require('./routes/disrtibutorsLocation');
+// const location = require('./routes/disrtibutorsLocation');
 const category = require('./routes/categories');
+const locations = require("./routes/locations");
 const user = require('./routes/users')
 const auth = require('./routes/auth')
 const config = require('config')
@@ -36,7 +37,8 @@ app.use('/amazon/document/api/login', auth)
 app.use('/amazon/document/api/carts', cart)
 app.use('/amazon/document/api/orders', order)
 app.use('/amazon/document/api/categories', category)
-app.use('/amazon/document/api/locations', location)
+// app.use('/amazon/document/api/locations', location)
+app.use("/amazon/document/api/locations", locations); 
 
 
 
