@@ -22,7 +22,7 @@ const config = require('config');
     if (!validPassword) return res.status(400).json({success: false, message:'Invalid password'});
 
     const token = user.generateAuthToken();
-    res.json({success: true, token, _id: user._id, isDistributor: user.isDistributor})
+    res.json({success: true, token, _id: user._id,  name: user.name, email: user.email, phoneNumber: user.phoneNumber})
    
     })
 

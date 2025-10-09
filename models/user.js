@@ -142,6 +142,10 @@ country: {
   city: {
     type: String,
     required: false
+  },
+  lastSeen: {
+    type: Number,
+    default: Date.now()
   }
 });
 
@@ -169,6 +173,7 @@ function validateUser(user) {
     country: Joi.string(),
     state: Joi.string(),
     city: Joi.string(),
+    lastSeen: Joi.number()
   });
 
   return schema.validate(user);

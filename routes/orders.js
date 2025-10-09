@@ -216,40 +216,40 @@ router.post('/create', async (req, res) => {
 //   }
 });
 
-router.post("/confirm", async (req, res) => {
-  try {
-    const { reference } = req.body;
-    if (!reference) return res.status(400).json({ success: false, message: "No reference provided" });
-    // :white_tick: Verify with Paystack
-    const response = await axios.get(
-      `https://api.paystack.co/transaction/verify/${reference}`,
-      {
-        headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
-      }
-    );
-    const data = response.data.data;
-    // :white_tick: Try to find order by Paystack reference
-    let order = await Order.findOne({ paymentReference: reference });
-    // Fallback: sometimes Paystack metadata contains orderId
-    if (!order && data.metadata?.orderId) {
-      order = await Order.findById(data.metadata.orderId);
-    }
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-    if (data.status === "success") {
-      order.paymentStatus = "paid";
-      order.transactionId = data.id;
-      await order.save();
-      return res.json({ success: true, order });
-    } else {
-      return res.status(400).json({ success: false, message: "Payment failed" });
-    }
-  } catch (err) {
-    console.error("Paystack Verify Error:", err.response?.data || err.message);
-    res.status(500).json({ success: false, message: "Error verifying payment" });
-  }
-});
+// router.post("/confirm", async (req, res) => {
+//   try {
+//     const { reference } = req.body;
+//     if (!reference) return res.status(400).json({ success: false, message: "No reference provided" });
+//     // :white_tick: Verify with Paystack
+//     const response = await axios.get(
+//       `https://api.paystack.co/transaction/verify/${reference}`,
+//       {
+//         headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
+//       }
+//     );
+//     const data = response.data.data;
+//     // :white_tick: Try to find order by Paystack reference
+//     let order = await Order.findOne({ paymentReference: reference });
+//     // Fallback: sometimes Paystack metadata contains orderId
+//     if (!order && data.metadata?.orderId) {
+//       order = await Order.findById(data.metadata.orderId);
+//     }
+//     if (!order) {
+//       return res.status(404).json({ success: false, message: "Order not found" });
+//     }
+//     if (data.status === "success") {
+//       order.paymentStatus = "paid";
+//       order.transactionId = data.id;
+//       await order.save();
+//       return res.json({ success: true, order });
+//     } else {
+//       return res.status(400).json({ success: false, message: "Payment failed" });
+//     }
+//   } catch (err) {
+//     console.error("Paystack Verify Error:", err.response?.data || err.message);
+//     res.status(500).json({ success: false, message: "Error verifying payment" });
+//   }
+// });
 
 router.post("/webhook", express.json({ type: "application/json" }), async (req, res) => {
   try {
@@ -269,11 +269,71 @@ router.post("/webhook", express.json({ type: "application/json" }), async (req, 
   }
 });
 
+
+router.get("/confirm", async (req, res) => {
+  try {
+    const { reference } = req.query;
+    if (!reference) return res.status(400).json({ success: false, message: "No reference provided" });
+
+    const response = await axios.get(
+      `https://api.paystack.co/transaction/verify/${reference}`,
+      { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` } }
+    );
+
+    const data = response.data.data;
+    let order = await Order.findOne({ paymentReference: reference });
+    if (!order && data.metadata?.orderId) {
+      order = await Order.findById(data.metadata.orderId);
+    }
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    if (data.status === "success") {
+      order.paymentStatus = "paid";
+      order.transactionId = data.id;
+      await order.save();
+      return res.json({ success: true, order });
+    } else {
+      return res.status(400).json({ success: false, message: "Payment failed" });
+    }
+  } catch (err) {
+    console.error("Paystack Verify Error:", err.response?.data || err.message);
+    res.status(500).json({ success: false, message: "Error verifying payment" });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
 router.get('/', async (req, res) => {
   const orders = await Order.find().sort('name')
   res.send(orders)
 });
 
+
+// update delevely status of order
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { deliveryStatus } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { deliveryStatus },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
 
 
 module.exports = router;

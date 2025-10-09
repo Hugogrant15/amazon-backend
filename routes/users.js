@@ -1,5 +1,4 @@
 const {User, validate} = require('../models/user')
-const {Location} = require('../models/distributorLocation');
 const express = require('express');
 const router = express.Router();
 const _ = require('lodash')
@@ -57,7 +56,6 @@ const auth = require("../middleware/auth");
     email: req.body.email,
     phoneNumber: req.body.phoneNumber,
     password: req.body.password,
-    //  isDistributor:  false
     });
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt)
@@ -73,44 +71,7 @@ const auth = require("../middleware/auth");
     })
 
     
-    // route to cretae distributor
-
-//     router.post("/create-distributor", [auth, authorize(["super_admin"])], async (req, res) => {
-  
-//   const { error } = validate(req.body);
-//   if (error) return res.status(400).send(error.details[0].message);
-
-//   const location = await Location.findById(req.body.locationId)
-//   if (!location) return res.status(404).send('invalid location id');
-
-//   let user = await User.findOne({ email: req.body.email });
-//   if (user) return res.status(400).send("User already registered.");
-
-//   user = new User({
-//     name: req.body.name,
-//     email: req.body.email,
-//     phoneNumber: req.body.phoneNumber,
-//     password: req.body.password,
-//      location: {
-//             _id: location._id,
-//             location: location.location
-//         },
-//     role: "distributor",
-//   });
-
-//   const salt = await bcrypt.genSalt(10);
-//   user.password = await bcrypt.hash(user.password, salt);
-
-//   await user.save();
-
-//   res.send({
-//     _id: user._id,
-//     name: user.name,
-//     email: user.email,
-//     location: user.location, 
-//     role: user.role,
-//   });
-// });
+   
 
 // ✅ Create Distributor
 router.post("/create-distributor", [auth, authorize(["super_admin"])], async (req, res) => {
@@ -154,6 +115,69 @@ router.post("/create-distributor", [auth, authorize(["super_admin"])], async (re
   });
 });
 
+// UPDATE DISTRIBUTOR
+router.put("/update-distributor/:id", [auth, authorize(["super_admin"])], async (req, res) => {
+  // Validate input with Joi
+  const { error } = validate(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  // Find the user
+  let user = await User.findById(req.params.id);
+  if (!user) return res.status(404).send("User not found.");
+
+  // Update fields
+  user.name = req.body.name;
+  user.email = req.body.email;
+  user.phoneNumber = req.body.phoneNumber;
+  user.country = req.body.country;
+  user.state = req.body.state;
+  user.city = req.body.city;
+
+  // Hash password if provided
+  if (req.body.password) {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(req.body.password, salt);
+  }
+
+  await user.save();
+
+  res.send({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    phoneNumber: user.phoneNumber,
+    role: user.role,
+    country: user.country,
+    state: user.state,
+    city: user.city,
+  });
+});
+
+// DELETE DISTRIBUTOR
+router.delete("/delete-distributor/:id", [auth, authorize(["super_admin"])], async (req, res) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) return res.status(404).send("User not found.");
+
+  res.send({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    phoneNumber: user.phoneNumber,
+    role: user.role,
+    country: user.country,
+    state: user.state,
+    city: user.city,
+  });
+});
+
+
+
+
+
+
+
+
+
 
 
 // ✅ Get All Users (Super Admin only)
@@ -170,57 +194,45 @@ router.get("/all-users", [auth, authorize(["super_admin"])], async (req, res) =>
 });
 
 
-// GET all distributors and customers
-// router.get("/all-users", auth, authorize(["super_admin"]), async (req, res) => {
-//   try {
-//     // Fetch users where role is distributor or customer
-//     const users = await User.find({ role: { $in: ["distributor", "customer"] } }).sort({ name: 1 });
-//     res.json(users);
-//   } catch (err) {
-//     console.error("Error fetching users:", err);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
+// :white_tick: Update user's last seen
+router.post("/update-last-seen", async (req, res) => {
+  try {
+    const { email, lastSeen } = req.body;
+    if (!email || !lastSeen) {
+      return res.status(400).json({ error: "Missing email or lastSeen" });
+    }
+    // Update inside user collection
+    await User.updateOne(
+      { email },
+      { $set: { lastSeen } },
+      { upsert: false }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Error updating last seen:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+// :white_tick: Fetch last seen for multiple users
+router.post("/get-last-seen", async (req, res) => {
+  try {
+    const { emails } = req.body;
+    if (!emails || !Array.isArray(emails)) {
+      return res.status(400).json({ error: "Invalid emails list" });
+    }
+    const users = await User.find({ email: { $in: emails } }, { email: 1, lastSeen: 1 });
+    const result = {};
+    users.forEach(u => {
+      result[u.email] = u.lastSeen || 0;
+    });
+    res.json(result);
+  } catch (err) {
+    console.error("Error fetching last seen:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
-// router.put("/update-distributor/:id", [auth, authorize(["super_admin"])], async (req, res) => {
-//   try {
-//     const distributor = await User.findById(req.params.id);
-//     if (!distributor) return res.status(404).json({ error: "Distributor not found" });
 
-//     const { name, email, phoneNumber, role, locationId } = req.body;
-
-//     // Update fields
-//     if (name) distributor.name = name;
-//     if (email) distributor.email = email;
-//     if (phoneNumber) distributor.phoneNumber = phoneNumber;
-//     if (role) distributor.role = role;
-
-//     // Update location if provided
-//     if (locationId) {
-//       const location = await Location.findById(locationId);
-//       if (!location) return res.status(404).json({ error: "Invalid location" });
-//       distributor.location = { location: location.location };
-//     }
-
-//     await distributor.save();
-//     res.json(distributor);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
-
-// // Delete Distributor
-// router.delete("/delete-distributor/:id", [auth, authorize(["super_admin"])], async (req, res) => {
-//   try {
-//     const distributor = await User.findByIdAndDelete(req.params.id);
-//     if (!distributor) return res.status(404).json({ error: "Distributor not found" });
-//     res.json({ message: "Distributor deleted successfully" });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
 
 
 
